@@ -12,7 +12,7 @@ const User = sequelize.define('users', {
   id_role: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1
+    defaultValue: 2//default user
   },
   email: {
     type: DataTypes.STRING,
@@ -31,6 +31,10 @@ const User = sequelize.define('users', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  refresh_token: {
+    type: DataTypes.STRING,
+    defaultValue: ""
+  },  
   created_at: {
     type: DataTypes.DATE,
     allowNull: false,
