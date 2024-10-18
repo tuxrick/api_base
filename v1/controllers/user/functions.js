@@ -3,7 +3,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {User} = require('../../models');
-const { valid } = require('@hapi/joi');
 
 const userFunctions = module.exports = {
 
@@ -92,7 +91,7 @@ const userFunctions = module.exports = {
             //hash password
             user_info.password = await bcrypt.hash(user_info.password, 10);
 
-            const user = await User.create(user_info).then(user => {
+            const user = await User.create(user_info).then(async user => {
                 if (!user) {
                     return {
                         status: false,
@@ -100,16 +99,42 @@ const userFunctions = module.exports = {
                         message: "Error creating user on database"
                     };
                 }
+
+                let refresh_token = await userFunctions.generateRefreshToken({
+                    id: user.dataValues.id,
+                    id_role: user.dataValues.id_role,
+                    email: user.dataValues.email,
+                    username: user.dataValues.username
+                });
+                const save_token = await userFunctions.saveRefreshToken({
+                    id: user.dataValues.id,
+                    refresh_token: refresh_token.data
+                });
+
+                refresh_token = refresh_token.data;
+
+                const access_token = await userFunctions.generateAccessToken({
+                    id: user_data.data.id,
+                    id_role: user_data.data.id_role,
+                    email: user_data.data.email,
+                    username: user_data.data.username
+                });
+                
                 return {
                     status: true,
-                    data: user,
+                    data: {
+                        email: user.dataValues.email,
+                        username: user.dataValues.username,
+                        access_token: access_token.data,
+                        refresh_token: refresh_token
+                    },
                     message: "Success creating user"
                 };
             });
 
             return {
                 status: true,
-                data: user,
+                data: user.data,
                 message: "Success creating user"
             };;
 
@@ -252,6 +277,8 @@ const userFunctions = module.exports = {
             return {
                 status: true,
                 data: {
+                    email: user_data.data.email,
+                    username: user_data.data.username,
                     access_token: access_token.data,
                     refresh_token: refresh_token
                 },

@@ -26,11 +26,12 @@ module.exports = {
         if(!user.status){
             return badResponse(req, res, user.data, user.message);
         }
+
         //TODO send email verification
         //TODO send welcome email
         //TODO 2fa verification
 
-        return okResponse(req, res, [], user.message);
+        return okResponse(req, res, user.data, user.message);
     },
 
     logInUser: async (req, res) => {
