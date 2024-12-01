@@ -3,6 +3,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {User} = require('../../models');
+const mail = require('../../utils/mail/mail');
 
 const userFunctions = module.exports = {
 
@@ -119,7 +120,9 @@ const userFunctions = module.exports = {
                     email: user_data.data.email,
                     username: user_data.data.username
                 });
-                
+
+                await mail.sendWelcomeEmail({email:user.dataValues.email});
+
                 return {
                     status: true,
                     data: {
